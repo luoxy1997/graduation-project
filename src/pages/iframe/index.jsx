@@ -11,7 +11,7 @@ export default class IFrame extends Component {
         let {src} = this.props.match.params;
         src = window.decodeURIComponent(src);
         return (
-            <div styleName="iframe">
+            <div styleName="iframe" >
                 <iframe
                     title={src}
                     src={src}
