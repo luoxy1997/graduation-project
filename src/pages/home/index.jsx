@@ -6,11 +6,7 @@ import PageContent from '@/layouts/page-content';
 import DataBlock from '@/components/data-block';
 import './style.less';
 
-@config({
-    path: '/',
-    title: {local: 'home', text: '首页', icon: 'home'},
-    breadcrumbs: [{key: 'home', local: 'home', text: '首页', icon: 'home'}],
-})
+
 export default class Home extends Component {
     constructor(...props) {
         super(...props);
