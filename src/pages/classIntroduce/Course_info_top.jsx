@@ -2,9 +2,15 @@ import React, {Component} from 'react';
 import './style.less';
 import PropTypes from "prop-types";
 import classBg from './classTitleBg.jpg';
+import Login from '../home/Login';
+import {ajaxHoc} from "../../commons/ajax";
 
 
+@ajaxHoc()
 export default class CourseInfoTop extends Component {
+    state = {
+        visible: false
+    }
     static contextTypes = {
         router: PropTypes.object
     };
@@ -14,11 +20,27 @@ export default class CourseInfoTop extends Component {
     };
 
     handleBuy = () => {
-        this.context.router.history.push({pathname:'/confirmGoods',state:this.props.commodities});
+        if (window.sessionStorage.getItem("user")) {
+            this.context.router.history.push({pathname: '/confirmGoods', state: this.props.commodities});
+        } else {
+            this.setState({visible: true})
+        }
     };
+    handleAddCar = () => {
+        console.log(this.props.commodities);
+        const {uuid, commodityRemark, commodityPrice, commodityLevel, commodityPeople, commodityEvaluate} = this.props.commodities;
+        const params = {
+            userId: JSON.parse(window.sessionStorage.getItem("user")).uuid,
+            commodityId:uuid
+        }
+        this.props.ajax.post('/customer/cart/addCart',params)
+            .then(() => {
+
+            })
+    }
 
     render() {
-        const {commodityName,commodityRemark,commodityPrice,commodityLevel,commodityPeople,commodityEvaluate} = this.props.commodities;
+        const {commodityName, commodityRemark, commodityPrice, commodityLevel, commodityPeople, commodityEvaluate} = this.props.commodities;
         return (
             <div className="course-infos-top" style={{background: `url(${classBg})`}}>
                 <div className="info-wrap">
@@ -52,12 +74,18 @@ export default class CourseInfoTop extends Component {
                         </div>
                         <div className="btns">
                             <a className="red-btn" onClick={this.handleBuy}>立即购买</a>
-                            <a className="add-chart">加购物车</a>
+                            <a className="add-chart" onClick={this.handleAddCar}>加购物车</a>
                         </div>
                     </div>
 
 
                 </div>
+                <Login
+                    visible={this.state.visible}
+                    cancel={() => {
+                        this.setState({visible: false})
+                    }}
+                />
             </div>
         );
     }

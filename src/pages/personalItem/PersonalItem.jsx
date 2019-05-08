@@ -5,10 +5,7 @@ import {connect} from "../../models";
 import {ajaxHoc} from "../../commons/ajax";
 
 @Form.create()
-@connect(state => {
-    const {userData} = state.userData;
-    return {userData};
-})
+
 @ajaxHoc()
 export default class PersonalItem extends Component {
     state = {

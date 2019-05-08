@@ -18,7 +18,7 @@ import {ajaxHoc} from "../../commons/ajax";
 
 const TabPane = Tabs.TabPane;
 const {Link} = Anchor;
-export const PAGE_ROUTE = '/home';
+export const PAGE_ROUTE = '/login';
 @Form.create()
 @ajaxHoc()
 @connect()
@@ -65,12 +65,17 @@ export default class Home extends Component {
     };
 
 
-    handleClick = (e) => {
-        console.log('click ', e);
-        this.setState({
-            current: e.key,
-        });
+
+    handleLogin = () => {
+        this.setState({visible: true});
     };
+    handleCancel = () => {
+        this.setState({visible: false});
+    };
+
+    componentDidMount() {
+        setTimeout(this.props.action.page.hideHead);
+    }
 
     addBorder = (e) => {
         let index = this.state.index;
@@ -84,20 +89,6 @@ export default class Home extends Component {
         this.setState({index});
     };
 
-    handleLogin = () => {
-        this.setState({visible: true});
-    };
-    handleCancel = () => {
-        this.setState({visible: false});
-    };
-
-    componentDidMount() {
-        setTimeout(this.props.action.page.hideHead);
-    }
-
-    callback = (key) => {
-        console.log(key);
-    };
 
 
     render() {

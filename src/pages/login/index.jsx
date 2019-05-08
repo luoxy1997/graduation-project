@@ -14,7 +14,7 @@ function hasErrors(fieldsError) {
 
 @Form.create()
 @config({
-    path: '/login',
+    path: '/',
     noFrame: true,
     noAuth: true,
     keepAlive: false,

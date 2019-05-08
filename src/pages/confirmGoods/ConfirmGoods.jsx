@@ -5,7 +5,7 @@ import Header from '../home/Header';
 import {ajaxHoc} from "../../commons/ajax";
 import QRCode from 'qrcode.react';
 
-import {Divider, Modal, Button, Card, Icon, Collapse} from 'antd';
+import {Divider, Modal, Button, Spin, Icon, Collapse} from 'antd';
 
 
 import './style.less';
@@ -18,8 +18,10 @@ export const PAGE_ROUTE = '/confirmGoods';
 export default class VideoItem extends Component {
     state = {
         visible: false,
-        type: null,
+        type: 'wechat',
         url: '',
+        qrCodeVisible: false,
+        loading: false
     };
     handlePay = () => {
         this.setState({visible: true});
@@ -30,31 +32,45 @@ export default class VideoItem extends Component {
     };
     addBorder = (type) => {
         console.log(type);
-        this.wechat.style.border = '2px solid #f3f5f7';
-        this.alipay.style.border = '2px solid #f3f5f7';
         this.setState({type});
     };
     handleOk = () => {
-        const {commodityName, commodityPrice, uuid} = this.props.location.state;
+        console.log(this.props.location.state);
+        const {commodityName, uuid,commodityPrice,commodityCredits} = this.props.location.state;
         const params = {
-            userId: window.sessionStorage.getItem("uuid"),
+            userId: JSON.parse(window.sessionStorage.getItem("user")).uuid,
             orderType: this.state.type,
-            orderPrice: 0.01,
+            orderPrice: commodityPrice,
             orderName: commodityName,
             commodityId: uuid,
             extension: 'test',
-            redirectUrl: '1231'
+            redirectUrl: '1231',
+            commodityCredits
         };
+        this.setState({loading: true});
         this.props.ajax.post('/customer/orders/pay', params)
             .then(res => {
-                this.setState({url: res.data})
+                this.setState({url: res.data, visible: false, qrCodeVisible: true, loading: false})
             })
 
 
     };
 
+    handleQRCancel = () => {
+        this.setState({qrCodeVisible: false});
+    };
+
+    chooseType = () => {
+        this.setState({
+            visible: true, qrCodeVisible: false
+        })
+    }
+
 
     render() {
+        const {commodityName, commodityOPrice,commodityPrice,commodityCredits,commodityImage} = this.props.location.state;
+        console.log(this.props.location.state);
+
         return (
             <div>
                 <Header theme="dark" background='black'/>
@@ -79,15 +95,16 @@ export default class VideoItem extends Component {
                                     <ul>
                                         <li className="item-cart">
                                             <div className="item-img">
-                                                <img src={goodsImg} alt="" tit=""/>
+                                                <img src={`data:image/png;base64,${commodityImage}`} alt="" tit=""/>
+
 
                                             </div>
                                             <div className="text-info-box">
-                                                <p>WebRTC实时互动直播技术入门与实战 5G时代必备技能</p>
+                                                <p>{commodityName}</p>
                                             </div>
                                             <div className="info-price">
                                                 <em>￥</em>
-                                                <span>255.00</span>
+                                                <span>{commodityPrice}</span>
                                             </div>
                                         </li>
                                     </ul>
@@ -107,7 +124,7 @@ export default class VideoItem extends Component {
                                 <div className="goods-total-price-box">
                                     <div className="price-num">
                                         <em>￥</em>
-                                        <span>255.00</span>
+                                        <span>{commodityOPrice}</span>
                                     </div>
                                     <div className="price-text">
                                         共
@@ -117,28 +134,29 @@ export default class VideoItem extends Component {
                                 </div>
                                 <div className="goods-total-price-box">
                                     <div className="price-num">
-                                        <em>-￥</em>
-                                        <span>55.00</span>
+
+                                        <span>{commodityCredits}</span>
+                                        <em>-积分</em>
                                     </div>
                                     <div className="price-text">
-                                        折扣优惠
+                                        积分优惠
                                     </div>
                                 </div>
                                 <div className="goods-total-price-box">
                                     <div className="price-num price">
                                         <em>￥</em>
-                                        <span>255.00</span>
+                                        <span>{commodityPrice}</span>
                                     </div>
                                     <div className="price-text">
                                         应付
                                     </div>
                                 </div>
                             </div>
-                            <div className="pay-account-box">
-                                <div className="pay-account">
-                                    购买账号：抹茶味的胡萝卜
-                                </div>
-                            </div>
+                            {/*<div className="pay-account-box">*/}
+                                {/*<div className="pay-account">*/}
+                                    {/*购买账号：抹茶味的胡萝卜*/}
+                                {/*</div>*/}
+                            {/*</div>*/}
                             <a className="buy-btn" onClick={this.handlePay}>提交订单</a>
                         </div>
                         <Modal
@@ -152,16 +170,31 @@ export default class VideoItem extends Component {
                                 </Button>,
                             ]}
                         >
-
-                            <div className="pay-list" style={{width: '420px', height: '100px', margin: '0 auto'}}>
-                                <a className="pay-way" onClick={() => this.addBorder('wechat')} ref={wechat => this.wechat = wechat} style={{border: '2px solid red'}}>
-                                </a>
-                                <a className="pay-way alipay" onClick={() => this.addBorder('alipay')} ref={alipay => this.alipay = alipay}></a>
-                            </div>
-                            {this.state.url === '' ? null :<QRCode value={this.state.url}/>}
-
+                            <Spin spinning={this.state.loading} tip="正在调起支付接口,请稍后...">
+                                <div className="pay-list" style={{width: '420px', height: '100px', margin: '0 auto'}}>
+                                    <a className="pay-way" onClick={() => this.addBorder('wechat')} style={{border: this.state.type === 'wechat' ? '2px solid rgb(218,87,73)' : null}}>
+                                    </a>
+                                    <a className="pay-way alipay" onClick={() => this.addBorder('alipay')} ref={alipay => this.alipay = alipay} style={{border: this.state.type === 'alipay' ? '2px solid rgb(218,87,73)' : null}}></a>
+                                </div>
+                            </Spin>
 
                         </Modal>
+                        <Modal
+                            visible={this.state.qrCodeVisible}
+                            onCancel={this.handleQRCancel}
+                            width={400}
+                            footer={null}
+                            style={{textAlign: 'center'}}
+                        >
+
+                            <QRCode value={this.state.url}/>
+                            <h3>等待您完成支付...</h3>
+                            <p>请在支付页面继续完成支付</p>
+                            <div className="success-btn" onClick={this.chooseType}>
+                                <Icon type="sync"/> 重新选择支付方式
+                            </div>
+                        </Modal>
+
 
                     </div>
                 </div>

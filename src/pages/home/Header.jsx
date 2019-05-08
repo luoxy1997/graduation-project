@@ -6,22 +6,23 @@ import {Menu, Icon, Row, Input, Col, Button, Modal, Tabs, Form, Checkbox, Popcon
 import logo from './logo.png';
 import {ajaxHoc} from "../../commons/ajax";
 import PropTypes from "prop-types";
-import QRCode from 'qrcode.react';
+import Login from './Login'
+import {hashHistory} from 'react-router'
 
 const TabPane = Tabs.TabPane;
 @Form.create()
 @ajaxHoc()
 @connect()
-
 export default class Header extends Component {
     state = {
         current: 'mail',
-        userLogin: window.sessionStorage.getItem("uuid"),
-        userNickName: window.sessionStorage.getItem("userName"),
+        userLogin: window.sessionStorage.getItem("user") !== null && JSON.parse(window.sessionStorage.getItem("user")).uuid,
+        userNickName: window.sessionStorage.getItem("user") !== null && JSON.parse(window.sessionStorage.getItem("user")).userName,
         visible: false,
         index: 0,
         spinning: false
     };
+
     static contextTypes = {
         router: PropTypes.object
     };
@@ -31,32 +32,6 @@ export default class Header extends Component {
     };
 
 
-    // 注册
-    handleRegister = () => {
-        const fields = ['userAccount', 'userPassword', 'userEmail'];
-        this.props.form.validateFieldsAndScroll(fields, (err, value) => {
-            const params = {userAccount: value.userName, userPassword: value.password}
-            this.props.ajax.post('/common/login/insertUserVal', value)
-                .then(() => {
-
-                })
-        });
-
-    };
-    // 登录
-    handleSubmit = () => {
-        const fields = ['userName', 'password'];
-        this.props.form.validateFieldsAndScroll(fields, (err, value) => {
-            const params = {userAccount: value.userName, userPassword: value.password};
-            this.props.ajax.get('/common/login/into', params)
-                .then((res) => {
-                    this.setState({userNickName: res.data.userName, userLogin: true, visible: false})
-                    window.sessionStorage.setItem("uuid", res.data.uuid);
-                    window.sessionStorage.setItem("userName", res.data.userName);
-                })
-        });
-    };
-
     // 退出登录
     handleLogOut = () => {
         this.setState({spinning: true});
@@ -64,13 +39,12 @@ export default class Header extends Component {
             window.sessionStorage.removeItem("uuid");
             window.sessionStorage.removeItem("userName");
             this.setState({userLogin: false, userNickName: null, spinning: false});
-            message.success('您已退出慕课网(￣▽￣)~*');
+            message.success('您已退出云课网(￣▽￣)~*');
         }, 2000)
 
     };
 
     handleClick = (e) => {
-        console.log('click ', e);
         this.setState({
             current: e.key,
         });
@@ -88,18 +62,14 @@ export default class Header extends Component {
         setTimeout(this.props.action.page.hideHead);
     }
 
-    callback = (key) => {
-        console.log(key);
-    };
     handlePersonal = () => {
-        this.props.history.push('/Personal')
-    }
+        this.context.router.history.push('/Personal')
+
+    };
 
 
     render() {
-        const {userLogin} = this.state;
-        const {form: {getFieldDecorator}} = this.props;
-        const userShow = userLogin ?
+        const userShow = this.state.userLogin ?
             <Menu.Item key="appd3qwe">
                 <Button type="primary" size="small">{this.state.userNickName}</Button>
                 &nbsp;&nbsp;
@@ -134,109 +104,45 @@ export default class Header extends Component {
                                 style={{borderBottom: 'none'}}
                                 theme={this.props.theme}
                             >
-                                <Menu.Item key="mail">
-                                    <Icon type="mail"/>免费课程
+                                <Menu.Item key="home" onClick={() => {
+                                    this.context.router.history.push('/')
+                                }}>
+                                    首页
                                 </Menu.Item>
-                                <Menu.Item key="app">
-                                    实战课程
+                                <Menu.Item key="app" onClick={() => {
+                                    this.context.router.history.push('/mall')
+                                }}>
+                                    积分商城
                                 </Menu.Item>
-                                <Menu.Item key="app1">
+                                <Menu.Item key="app1" onClick={() => {
+                                    this.context.router.history.push('/mall')
+                                }}>
                                     就业班
                                 </Menu.Item>
-                                <Menu.Item key="app2">
+                                <Menu.Item key="app2" onClick={() => {
+                                    this.context.router.history.push('/mall')
+                                }}>
                                     专栏
                                 </Menu.Item>
-                                <Menu.Item key="app3">
+                                <Menu.Item key="app3" onClick={() => {
+                                    this.context.router.history.push('/mall')
+                                }}>
                                     手记
-                                </Menu.Item>
-                                <Menu.Item key="appd3">
-                                    <Input style={{width: '200px', height: '32px', border: 'none', borderBottom: '1px solid #ddd'}}/><Icon type="search" style={{color: 'rgba(0,0,0,.25)', position: 'relative', right: '22px'}}/>
                                 </Menu.Item>
                                 {userShow}
 
                             </Menu>
                         </Col>
                         <Col span={2}></Col>
-                        <Modal
-                            visible={this.state.visible}
-                            onOk={this.handleOk}
-                            onCancel={this.handleCancel}
-                            footer={null}
-                            width={500}
-                        >
-                            <Tabs defaultActiveKey="login" onChange={this.callback}>
-                                <TabPane tab="登录" key="login">
-                                    <Form className="login-form">
-                                        <Form.Item>
-                                            {getFieldDecorator('userName', {
-                                                rules: [{required: true, message: 'Please input your username!'}],
-                                            })(
-                                                <Input prefix={<Icon type="user" style={{color: 'rgba(0,0,0,.25)'}}/>} placeholder="请输入用户名"/>
-                                            )}
-                                        </Form.Item>
-                                        <Form.Item>
-                                            {getFieldDecorator('password', {
-                                                rules: [{required: true, message: 'Please input your Password!'}],
-                                            })(
-                                                <Input prefix={<Icon type="lock" style={{color: 'rgba(0,0,0,.25)'}}/>} type="password" placeholder="请输入密码"/>
-                                            )}
-                                        </Form.Item>
-                                        <Form.Item>
-                                            {getFieldDecorator('remember', {
-                                                valuePropName: 'checked',
-                                                initialValue: true,
-                                            })(
-                                                <Checkbox>记住密码</Checkbox>
-                                            )}
-                                            <a className="login-form-forgot" href="">忘记密码</a>
-                                            或<a href="">立即注册!</a>
-                                        </Form.Item>
-                                        <Form.Item>
-                                            <Button type="primary" icon="smile" style={{width: '100%'}} onClick={this.handleSubmit}>登录</Button>
-                                        </Form.Item>
-                                    </Form>
-                                </TabPane>
-                                <TabPane tab="注册" key="register">
-                                    <Form className="login-form">
-                                        <Form.Item>
-                                            {getFieldDecorator('userAccount', {
-                                                rules: [{required: true, message: 'Please input your username!'}],
-                                            })(
-                                                <Input prefix={<Icon type="user" style={{color: 'rgba(0,0,0,.25)'}}/>} placeholder="请输入用户名"/>
-                                            )}
-                                        </Form.Item>
-                                        <Form.Item>
-                                            {getFieldDecorator('userEmail', {
-                                                rules: [{required: true, message: 'Please input your Password!'}],
-                                            })(
-                                                <Input prefix={<Icon type="mail" style={{color: 'rgba(0,0,0,.25)'}}/>} placeholder="请输入邮箱"/>
-                                            )}
-                                        </Form.Item>
-                                        <Form.Item>
-                                            {getFieldDecorator('userPassword', {
-                                                rules: [{required: true, message: 'Please input your Password!'}],
-                                            })(
-                                                <Input prefix={<Icon type="lock" style={{color: 'rgba(0,0,0,.25)'}}/>} type="password" placeholder="请输入密码"/>
-                                            )}
-                                        </Form.Item>
-                                        <Form.Item>
-                                            {getFieldDecorator('remember', {
-                                                valuePropName: 'checked',
-                                                initialValue: true,
-                                            })(
-                                                <Checkbox>同意《慕课网注册协议》
-                                                </Checkbox>
-                                            )}
-                                        </Form.Item>
-                                        <Form.Item>
-                                            <Button type="primary" icon="smile" style={{width: '100%'}} onClick={this.handleRegister}>注册</Button>
-                                        </Form.Item>
-                                    </Form>
-                                </TabPane>
-                            </Tabs>
-                        </Modal>
+
                     </Row>
                 </Spin>
+                <Login
+                    visible={this.state.visible}
+                    cancel={(user) => {
+                        this.setState({visible: false});
+                    }}
+                />
             </div>
         );
     }

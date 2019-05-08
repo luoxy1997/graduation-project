@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import goodsImg from './img/goodsimg.jpg';
 import pay_s from './img/pay_s.png';
 import Header from '../home/Header';
+import {ajaxHoc} from "../../commons/ajax";
 
 import {Modal, Button, Icon, Table, Collapse} from 'antd';
 
@@ -9,10 +10,21 @@ import {Modal, Button, Icon, Table, Collapse} from 'antd';
 import './style.less';
 
 const Panel = Collapse.Panel;
-
 export const PAGE_ROUTE = '/payCarts';
+@ajaxHoc()
+
 export default class VideoItem extends Component {
     state = {visible: false};
+    componentDidMount() {
+        const userId = JSON.parse(window.sessionStorage.getItem("user")).uuid;
+        this.props.ajax.get(`/customer/cart/queryCart?userId=${userId}&pageSize=10&pageNum=1`)
+            .then((res) => {
+                console.log(res);
+                this.setState({
+                    orders: res.data.list
+                })
+            })
+    }
     handlePay = () => {
         this.setState({visible: true});
 

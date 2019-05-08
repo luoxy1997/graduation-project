@@ -47,7 +47,7 @@ export default class KeepAuthRoute extends React.Component {
                     const keepPage = configKeepAlive === void 0 ? keepPageSystem : configKeepAlive;
                     const {history} = props;
                     const {action: {system}} = this.props;
-                    let component = (noAuth || isAuthenticated()) ? <Component {...props}/> : <Error401 {...props}/>;
+                    let component = <Component {...props}/> ;
 
                     // 如果页面现实tabs，或者启用了keep page alive 需要对tabs进行操作
                     if (tabsShow || keepPage || keepAliveRoutes.length) {

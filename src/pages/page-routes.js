@@ -2,12 +2,12 @@
 
 // 不需要导航框架的页面路径
 export const noFrames = [
-    '/login',
+    '/',
 ];
 
 // 不需要登录就可以访问的页面路径
 export const noAuths = [
-    '/login',
+    '/',
 ];
 
 // 需要keep alive 页面
@@ -17,7 +17,7 @@ export const keepAlives = [
         keepAlive: true,
     },
     {
-        path: '/login',
+        path: '/',
         keepAlive: false,
     },
     {
@@ -28,6 +28,14 @@ export const keepAlives = [
 
 // 页面路由配置
 export default [
+    {
+        path: '/home3',
+        component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/EditableTable.jsx'),
+    },
+    {
+        path: '/home2',
+        component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/EditableCell.jsx'),
+    },
     {
         path: '/confirmGoods',
         component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/confirmGoods/ConfirmGoods.jsx'),
@@ -45,32 +53,28 @@ export default [
         component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/iframe/index.jsx'),
     },
     {
-        path: '/home',
+        path: '/login',
         component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/home/Home.jsx'),
+    },
+    {
+        path: '/mall',
+        component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/mall/mall.jsx'),
     },
     {
         path: '/menu-permission',
         component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/menu-permission/index.jsx'),
     },
     {
+        path: '/',
+        component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/login/index.jsx'),
+    },
+    {
         path: '/Personal',
         component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/personalItem/Personal.jsx'),
     },
     {
-        path: '/settings',
-        component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/setting/index.jsx'),
-    },
-    {
-        path: '/login',
-        component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/login/index.jsx'),
-    },
-    {
         path: '/roles',
         component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/roles/index.jsx'),
-    },
-    {
-        path: '/user-center',
-        component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/user-center/UserCenterList.jsx'),
     },
     {
         path: '/users/_/UserEdit/:id',
@@ -79,6 +83,14 @@ export default [
     {
         path: '/users',
         component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/users/index.jsx'),
+    },
+    {
+        path: '/user-center',
+        component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/user-center/UserCenterList.jsx'),
+    },
+    {
+        path: '/settings',
+        component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/setting/index.jsx'),
     },
     {
         path: '/example/ajax',
@@ -93,16 +105,16 @@ export default [
         component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/examples/antd/async-select/index.jsx'),
     },
     {
+        path: '/example/antd/pagination',
+        component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/examples/antd/pagination/index.jsx'),
+    },
+    {
         path: '/example/antd/form-element',
         component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/examples/antd/form-element/index.jsx'),
     },
     {
         path: '/example/antd/operator',
         component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/examples/antd/operator/index.jsx'),
-    },
-    {
-        path: '/example/antd/pagination',
-        component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/examples/antd/pagination/index.jsx'),
     },
     {
         path: '/example/antd/query-item',
@@ -121,11 +133,11 @@ export default [
         component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/examples/antd/tool-bar/index.jsx'),
     },
     {
-        path: '/example/antd/user-avatar',
-        component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/examples/antd/user-avatar/index.jsx'),
-    },
-    {
         path: '/example/antd/table-row-draggable',
         component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/examples/antd/table-row-draggable/index.jsx'),
+    },
+    {
+        path: '/example/antd/user-avatar',
+        component: () => import('/Users/luoxy/workSpace/graduation-project/src/pages/examples/antd/user-avatar/index.jsx'),
     },
 ];
