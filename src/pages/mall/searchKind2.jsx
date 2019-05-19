@@ -9,7 +9,7 @@ import PropTypes from "prop-types";
 
 const TabPane = Tabs.TabPane;
 
-export const PAGE_ROUTE = '/kind';
+export const PAGE_ROUTE = '/kindType';
 @connect()
 @Form.create()
 @ajaxHoc()

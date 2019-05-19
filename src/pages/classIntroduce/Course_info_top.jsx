@@ -3,7 +3,10 @@ import './style.less';
 import PropTypes from "prop-types";
 import classBg from './classTitleBg.jpg';
 import Login from '../home/Login';
+
+import {Popconfirm, Popover, Icon, Tag, Button} from 'antd';
 import {ajaxHoc} from "../../commons/ajax";
+import notify from './notify';
 
 
 @ajaxHoc()
@@ -20,27 +23,57 @@ export default class CourseInfoTop extends Component {
     };
 
     handleBuy = () => {
+        const {type, uuid, commodityCredits} = this.props.commodities;
         if (window.sessionStorage.getItem("user")) {
-            this.context.router.history.push({pathname: '/confirmGoods', state: this.props.commodities});
+            if (type === 'credit') {
+                const params = {userId: JSON.parse(window.sessionStorage.getItem("user")).uuid, commodityId: uuid, commodityCreadity: commodityCredits,};
+
+                this.props.ajax.post('commodity/opera/getCreditsCommodity', params)
+                    .then(() => {
+                        notify('success','积分兑换成功！')
+                    })
+                    .catch(()=>{
+                        notify('error','积分失败！')
+                    })
+            } else {
+                this.context.router.history.push({pathname: '/confirmGoods', state: this.props.commodities});
+            }
         } else {
             this.setState({visible: true})
         }
     };
     handleAddCar = () => {
-        console.log(this.props.commodities);
-        const {uuid, commodityRemark, commodityPrice, commodityLevel, commodityPeople, commodityEvaluate} = this.props.commodities;
+        const {uuid} = this.props.commodities;
         const params = {
             userId: JSON.parse(window.sessionStorage.getItem("user")).uuid,
-            commodityId:uuid
-        }
-        this.props.ajax.post('/customer/cart/addCart',params)
+            commodityId: uuid
+        };
+        this.props.ajax.post('/customer/cart/addCart', params)
             .then(() => {
+                notify('success', '已收藏')
+            })
+            .catch(() => {
+                notify('error', '收藏失败')
 
             })
     }
 
     render() {
-        const {commodityName, commodityRemark, commodityPrice, commodityLevel, commodityPeople, commodityEvaluate} = this.props.commodities;
+        const content = (
+            <div>
+                <div>
+                    <p><Tag color="geekblue"><p><Icon type="sound"/>积分商品：可用积分免费兑换</p></Tag></p>
+                    <p>用户共有积分:</p>
+                    <p>商品积分：</p>
+
+                </div>
+                <div style={{textAlign: 'center'}}>
+                    <Button size="small" type="primary" ghost onClick={this.handleBuy}>确认兑换</Button>
+                </div>
+            </div>
+        );
+
+        const {commodityName, commodityRemark, commodityPrice, commodityLevel, commodityPeople, commodityEvaluate, type} = this.props.commodities;
         return (
             <div className="course-infos-top" style={{background: `url(${classBg})`}}>
                 <div className="info-wrap">
@@ -73,8 +106,17 @@ export default class CourseInfoTop extends Component {
                             <span className="details">{commodityEvaluate * 4.4}分</span>
                         </div>
                         <div className="btns">
-                            <a className="red-btn" onClick={this.handleBuy}>立即购买</a>
-                            <a className="add-chart" onClick={this.handleAddCar}>加购物车</a>
+                            {type === 'credit' ?
+                                <Popover content={content}>
+                                    <a className="red-btn" >立即购买</a>
+                                </Popover>
+                                :
+                                <a className="red-btn" onClick={this.handleBuy}>立即购买</a>
+                            }
+
+                            <Popconfirm title="确认加入购物车？" onConfirm={this.handleAddCar}>
+                                <a className="add-chart">加入收藏</a>
+                            </Popconfirm>
                         </div>
                     </div>
 

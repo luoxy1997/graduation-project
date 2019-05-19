@@ -19,7 +19,7 @@ export default class IndexQuestion extends Component {
             <div style={{marginTop: '30px', background: 'rgb(248,250,252)'}}>
                 <div className="type-title question">
                     <span className="tit-icon"></span>
-                    <em>实</em>/<em>战</em>/<em>推</em>/<em>荐</em>/
+                    <em>技</em>/<em>术</em>/<em>问</em>/<em>答</em>/
                     <span className="tit-icon r"></span>
                 </div>
                 <Row>

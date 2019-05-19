@@ -1,129 +1,29 @@
 import React, {Component} from 'react';
-import {Modal, Button, Tabs, Icon, Form} from 'antd';
-
+import {Modal, Button, Tabs, Icon, Form, Upload, message} from 'antd';
 import Header from '../home/Header';
 
 import MyOrder from './MyOrder';
 import defaultBannar from './defaultbannar.jpg';
 import girl from './girl.png';
-import Upload from './Upload.jsx'
+import UploadItem from './Upload.jsx'
 
 import PersonalItem from './PersonalItem';
 import './style.less';
 import {connect} from "../../models";
-import PropTypes from "prop-types";
+import notify from './notify';
+import {ajaxHoc} from "../../commons/ajax";
 
 const TabPane = Tabs.TabPane;
 
 export const PAGE_ROUTE = '/Personal';
 @connect()
 @Form.create()
-
+@ajaxHoc()
 export default class Personal extends Component {
     state = {
         visible: false,
-        name: '',
-        path: '',
-        preview: null,
-        data: null,
-        progress:0
+        loginIcon: null
     };
-    changeName = (e) => {
-        this.setState({ name: e.target.value })
-    };
-
-    static contextTypes = {
-        router: PropTypes.object
-    };
-
-    constructor(props, context) {
-        super(props, context);
-    };
-
-    //选择文件
-    changePath = (e) => {
-        const file = e.target.files[0];
-        if (!file) {
-            return;
-        }
-
-        let src,preview,type=file.type;
-
-        // 匹配类型为image/开头的字符串
-        if (/^image\/\S+$/.test(type)) {
-            src = URL.createObjectURL(file)
-            preview = <img src={src} alt='' width={300}/>
-        }
-        // 匹配类型为video/开头的字符串
-        else if (/^video\/\S+$/.test(type)) {
-            src = URL.createObjectURL(file)
-            preview = <video src={src} autoPlay loop controls />
-        }
-        // 匹配类型为text/开头的字符串
-        else if (/^text\/\S+$/.test(type)) {
-            const self = this;
-            const reader = new FileReader();
-            reader.readAsText(file);
-            //注：onload是异步函数，此处需独立处理
-            reader.onload = function (e) {
-                preview = <textarea value={this.result} readOnly></textarea>
-                self.setState({ path: file.name, data: file, preview: preview })
-            }
-            return;
-        }
-
-        this.setState({ path: file.name, data: file, preview: preview })
-    }
-
-    upload = () => {
-        const data = this.state.data;
-        if (!data) {
-            console.log('未选择文件');
-            return;
-        }
-        const url = 'http://localhost:3000/api/upload';  // 此处的url应该是服务端提供的上传文件api
-        const form = new FormData();
-
-        form.append('file', data);  // 此处的file字段由上传的api决定，可以是其它值
-
-        // fetch方式暂不支持progress events事件
-
-        /*  fetch(url, {
-            method: 'POST',
-            body: form
-        }).then(res => {
-            console.log(res)
-        }) */
-
-        // 改为使用ajax实现上传并添加显示进度条功能
-
-        const xhr = new XMLHttpRequest();
-        this.xhr = xhr
-        xhr.upload.addEventListener('progress', this.uploadProgress, false);  // 第三个参数为useCapture?，是否使用事件捕获/冒泡
-
-        // xhr.addEventListener('load',uploadComplete,false);
-        // xhr.addEventListener('error',uploadFail,false);
-        // xhr.addEventListener('abort',uploadCancel,false)
-
-        xhr.open('POST', url, true);  // 第三个参数为async?，异步/同步
-        xhr.send(form);
-    }
-
-    uploadProgress = (e) => {
-        if (e.lengthComputable) {
-            const progress = Math.round((e.loaded / e.total) * 100);
-            this.setState({ progress: progress })
-        }
-    }
-
-    componentWillUnmount() {
-        this.xhr.upload.removeEventListener('progress', this.uploadProgress, false)
-    }
-
-    //关闭模态框
-    cancel = () => {
-        this.props.closeOverlay();
-    }
     showModal = () => {
         this.setState({
             visible: true,
@@ -131,22 +31,54 @@ export default class Personal extends Component {
     };
 
     handleOk = (e) => {
-        console.log(e);
+        const uuid = window.sessionStorage.getItem("user") && JSON.parse(window.sessionStorage.getItem("user")).uuid;
+        this.props.ajax.post('/common/login/updateUser', {userImg: this.state.loginIcon, uuid})
+            .then(res => {
+                notify("success", '上传成功');
+                this.setState({
+                    visible: false,
+                });
+            })
+            .catch(err => {
+                notify("error", '上传失败');
+            })
+
+    };
+
+    handleCancel = (e) => {
         this.setState({
             visible: false,
         });
     };
-
-    handleCancel = (e) => {
-        console.log(e);
-        this.setState({
-            visible: false,
+    getBase64 = (img, callback) => {
+        const reader = new FileReader();
+        reader.addEventListener('load', () => callback(reader.result));
+        reader.readAsDataURL(img);
+    };
+    beforeUpload = (file) => {
+        console.log(file);
+        const isJPG = file.type === 'image/jpeg';
+        const isPNG = file.type === 'image/png';
+        const isGIF = file.type === 'image/gif';
+        const isPic = isJPG || isPNG || isGIF;
+        if (!isPic) {
+            message.error('你只能上传jpg,png,gif文件!');
+            return false;
+        }
+        const isLt2M = file.size / 1024 / 1024 < 2;
+        if (!isLt2M) {
+            message.error('文件上传不能大于2MB!');
+            return false;
+        }
+        this.getBase64(file, base64 => {
+            // TODO 发请求 将base64 数据传递给后端
+            this.setState({loginIcon: base64});
         });
+        this.setState({loginIcon: file});
     };
 
     render() {
         let uuid = sessionStorage.getItem('uuid');
-        const { name, path, preview } = this.state;
         return (
             <div>
                 <Header theme="dark" background="black"/>
@@ -166,16 +98,16 @@ export default class Personal extends Component {
                 <Tabs
                     defaultActiveKey="1"
                     tabPosition="left"
-                    style={{margin: '40px 0 0 40px',}}
+                    style={{margin: '40px 0 0 40px'}}
                 >
-                    <TabPane tab={<span><Icon type="user"/>个人中心</span>} key="1">
+                    <TabPane tab={<span><Icon type="user"/>个人信息</span>} key="1">
                         <PersonalItem uuid={uuid}/>
                     </TabPane>
                     <TabPane tab={<span><Icon type="bars"/>订单中心</span>} key="2">
                         <MyOrder/>
                     </TabPane>
-                    <TabPane tab={<span><Icon type="upload"/>上传课程</span>} key="3">
-                        <Upload/>
+                    <TabPane tab={<span><Icon type="upload"/>上传课程</span>} key="7">
+                        <UploadItem/>
                     </TabPane>
                 </Tabs>
                 <Modal
@@ -183,31 +115,31 @@ export default class Personal extends Component {
                     visible={this.state.visible}
                     onOk={this.handleOk}
                     onCancel={this.handleCancel}
+                    width={400}
                 >
                     <Form>
-                        <div>
-                            <h4>上传文件</h4>
-                            <div className='row'>
-                                <label>文件名称</label>
-                                <input type='text' placeholder='请输入文件名' value={name} onChange={this.changeName} />
+                        <Form.Item className="system">
+                            <div className="nameLable" style={{textAlign: 'center'}}>
+                                <div style={{width: '100px', margin: '0 auto'}}>
+                                    {this.props.form.getFieldDecorator('loginIcon')(
+                                        <Upload
+                                            listType="picture-card"
+                                            className="avatar-uploader"
+                                            showUploadList={false}
+                                            beforeUpload={(file) => this.beforeUpload(file, 'login')}
+                                        >
+                                            {this.state.loginIcon ? (
+                                                <img src={this.state.loginIcon} alt="" width="100%"/>
+                                            ) : (
+                                                <div>
+                                                    <Icon type="plus"/>
+                                                    <div className="ant-upload-text">Upload</div>
+                                                </div>
+                                            )}
+                                        </Upload>,
+                                    )}</div>
                             </div>
-                            <div className='row'>
-                                <label>文件路径</label>
-                                <div className='row-input'>
-                                    <span>{path ? path : '请选择文件路径'}</span>
-                                    <input type='file' accept='video/*,image/*,text/plain' onChange={this.changePath} />
-                                </div>
-                            </div>
-                            <div className='media'>
-                                {preview}
-                            </div>
-                            <button className='primary upload' onClick={this.upload}>上传</button>
-                            <button className='primary cancel' onClick={this.cancel}>取消</button>
-                        </div>
-                        <div className='progressWrap'>
-                            <div className='progress' style={{ width: `${this.state.progress}%` }} />
-                            <span className='progress-text' style={{left:`${this.state.progress}%`}}>{this.state.progress}%</span>
-                        </div>
+                        </Form.Item>
                     </Form>
                 </Modal>
 

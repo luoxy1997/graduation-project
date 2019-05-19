@@ -9,7 +9,7 @@ module.exports = function (app) {
             },
         }
     ));
-    app.use(proxy('/api/customer/orders/pay',
+    app.use(proxy('/api/customer',
         {
             target: 'http://39.105.57.189:1297/',
             pathRewrite: {

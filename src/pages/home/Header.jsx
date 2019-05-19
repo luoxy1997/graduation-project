@@ -2,7 +2,7 @@ import React, {Component} from 'react'
 import {connect} from "../../models/index";
 import './style.less';
 import topAd from './topAd.jpg';
-import {Menu, Icon, Row, Input, Col, Button, Modal, Tabs, Form, Checkbox, Popconfirm, message, Spin} from 'antd';
+import {Menu, Icon, Row, Input, Col, Button, Tooltip, Tabs, Form, Checkbox, Popconfirm, message, Spin} from 'antd';
 import logo from './logo.png';
 import {ajaxHoc} from "../../commons/ajax";
 import PropTypes from "prop-types";
@@ -45,9 +45,16 @@ export default class Header extends Component {
     };
 
     handleClick = (e) => {
-        this.setState({
-            current: e.key,
-        });
+        if (e.key !== 'personal' && e.key !== 'search') {
+            this.context.router.history.push(e.key)
+        }
+        if (e.key === '/search' ) {
+            console.log('this');
+            this.context.router.history.push({pathname: '/kind', state: {commodityKind:'教学类'}})
+        }
+        if (e.key === '/search1' ) {
+            this.context.router.history.push({pathname: '/kindType', state: {commodityKind:'儿童类'}})
+        }
     };
 
 
@@ -66,14 +73,27 @@ export default class Header extends Component {
         this.context.router.history.push('/Personal')
 
     };
+    searchCourse = () => {
+        const value = this.props.form.getFieldsValue();
+        this.context.router.history.push({pathname: '/search', state: value});
+
+    };
+    handlepayChart = () => {
+        this.forceUpdate();
+        this.context.router.history.push('/payCarts')
+
+    };
 
 
     render() {
+        const {getFieldDecorator} = this.props.form;
         const userShow = this.state.userLogin ?
-            <Menu.Item key="appd3qwe">
+            <Menu.Item key="personal">
                 <Button type="primary" size="small">{this.state.userNickName}</Button>
                 &nbsp;&nbsp;
                 <Button type="dashed" size="small" onClick={this.handlePersonal}>个人中心</Button>
+                &nbsp;&nbsp;
+                <Button type="dashed" size="small" onClick={this.handlepayChart}>我的收藏</Button>
                 &nbsp;&nbsp;
                 <Popconfirm title="确认要退出此账号?" onConfirm={this.handleLogOut}>
                     <Button type="danger" size="small">退出</Button>
@@ -81,68 +101,76 @@ export default class Header extends Component {
 
             </Menu.Item>
             :
-            <Menu.Item key="appdasdd3">
+            <Menu.Item key="personal">
                 <Button type="dashed" size="small" onClick={this.handleLogin}>注册/登录</Button>
+
                 {/*<QRCode value="wxp://f2f1J1pUoSkm2wR4eLg7fncTJQc5gTif_Ybc" />*/}
             </Menu.Item>;
         return (
             <div style={{position: 'relative'}}>
-                <Spin spinning={this.state.spinning}>
-                    <img src={topAd} alt='topAd' tit="21" width='100%' style={{position: 'relative', top: 0, height: '45px'}}/>
-                    <Row style={{lineHeight: '48px', boxShadow: '0 4px 8px 0 rgba(7,17,30,.1)', background: this.props.background}}>
-                        <Col span={2}></Col>
-                        <Col span={4}>
-                            <a href="/" className="logo">
-                                <img src={logo} alt="" tit="" width={85}/>
-                            </a>
-                        </Col>
-                        <Col span={16}>
-                            <Menu
-                                onClick={this.handleClick}
-                                selectedKeys={[this.state.current]}
-                                mode="horizontal"
-                                style={{borderBottom: 'none'}}
-                                theme={this.props.theme}
-                            >
-                                <Menu.Item key="home" onClick={() => {
-                                    this.context.router.history.push('/')
-                                }}>
-                                    首页
-                                </Menu.Item>
-                                <Menu.Item key="app" onClick={() => {
-                                    this.context.router.history.push('/mall')
-                                }}>
-                                    积分商城
-                                </Menu.Item>
-                                <Menu.Item key="app1" onClick={() => {
-                                    this.context.router.history.push('/mall')
-                                }}>
-                                    就业班
-                                </Menu.Item>
-                                <Menu.Item key="app2" onClick={() => {
-                                    this.context.router.history.push('/mall')
-                                }}>
-                                    专栏
-                                </Menu.Item>
-                                <Menu.Item key="app3" onClick={() => {
-                                    this.context.router.history.push('/mall')
-                                }}>
-                                    手记
-                                </Menu.Item>
-                                {userShow}
+                <Form>
+                    <Spin spinning={this.state.spinning}>
+                        <img src={topAd} alt='topAd' tit="21" width='100%' style={{position: 'relative', top: 0, height: '45px'}}/>
+                        <Row style={{lineHeight: '48px', boxShadow: '0 4px 8px 0 rgba(7,17,30,.1)', background: this.props.background}}>
+                            <Col span={2}></Col>
+                            <Col span={4}>
+                                <a href="/" className="logo">
+                                    <img src={logo} alt="" tit="" width={150}/>
+                                </a>
+                            </Col>
+                            <Col span={16}>
+                                <Menu
+                                    onClick={this.handleClick}
+                                    selectedKeys={[this.state.current]}
+                                    mode="horizontal"
+                                    style={{borderBottom: 'none'}}
+                                    theme={this.props.theme}
+                                >
+                                    <Menu.Item key="/">
+                                        首页
+                                    </Menu.Item>
+                                    <Menu.Item key="/search">
+                                        Java
+                                    </Menu.Item>
+                                    <Menu.Item key="/search1">
+                                        儿童类
+                                    </Menu.Item>
+                                    <Menu.Item key="/mall">
+                                        积分商城
+                                    </Menu.Item>
 
-                            </Menu>
-                        </Col>
-                        <Col span={2}></Col>
+                                    <Menu.Item key="search">
+                                        <Form.Item style={{height: 20, marginTop: '10px'}}>
+                                            {getFieldDecorator('commodityName', {})(
+                                                <Input
+                                                    placeholder="前端react"
+                                                    suffix={
+                                                        <Tooltip title="点击搜索您感兴趣的课程" onClick={this.searchCourse}>
+                                                            <Icon type="search" style={{color: 'rgba(0,0,0,.45)'}}/>
+                                                        </Tooltip>
+                                                    }
+                                                />
+                                            )}
 
-                    </Row>
-                </Spin>
-                <Login
-                    visible={this.state.visible}
-                    cancel={(user) => {
-                        this.setState({visible: false});
-                    }}
-                />
+                                        </Form.Item>
+                                    </Menu.Item>
+
+                                    {userShow}
+
+                                </Menu>
+
+                            </Col>
+                            <Col span={2}></Col>
+
+                        </Row>
+                    </Spin>
+                    <Login
+                        visible={this.state.visible}
+                        cancel={(user) => {
+                            this.setState({visible: false});
+                        }}
+                    />
+                </Form>
             </div>
         );
     }

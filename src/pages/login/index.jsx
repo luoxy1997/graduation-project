@@ -14,7 +14,7 @@ function hasErrors(fieldsError) {
 
 @Form.create()
 @config({
-    path: '/',
+    path: '/1231',
     noFrame: true,
     noAuth: true,
     keepAlive: false,
@@ -29,6 +29,7 @@ export default class extends Component {
     };
 
     componentDidMount() {
+        console.log('dasdasda');
         const {form: {validateFields, setFieldsValue}} = this.props;
         // 一开始禁用提交按钮
         validateFields(() => void 0);
@@ -74,6 +75,7 @@ export default class extends Component {
     };
 
     render() {
+
         const {local} = this.props;
         const {getFieldDecorator, getFieldsError, getFieldError, isFieldTouched} = this.props.form;
         const {loading, message} = this.state;

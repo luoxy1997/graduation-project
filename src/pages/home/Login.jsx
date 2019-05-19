@@ -98,12 +98,7 @@ export default class Login extends Component {
                                 )}
                             </Form.Item>
                             <Form.Item>
-                                {this.props.form.getFieldDecorator('remember', {
-                                    valuePropName: 'checked',
-                                    initialValue: true,
-                                })(
-                                    <Checkbox>记住密码</Checkbox>
-                                )}
+                                <Icon type="question-circle" /> &nbsp;&nbsp;
                                 <a className="login-form-forgot" href="">忘记密码</a>
                                 或<a href="">立即注册!</a>
                             </Form.Item>

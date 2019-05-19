@@ -123,8 +123,8 @@ export default class UploadItem extends Component {
         this.props.form.validateFieldsAndScroll((err, value) => {
             if (!err) {
                 const {videoImage, file} = this.state;
-                let uuid = sessionStorage.getItem('uuid');
-                this.props.ajax.post('/commodity/opera/uploadCommodity', {...value, uuid:1});
+                const uuid = window.sessionStorage.getItem("user") && JSON.parse(window.sessionStorage.getItem("user")).uuid;
+                this.props.ajax.post('/commodity/opera/uploadCommodity', {...value, uuid: uuid});
                 this.props.ajax.post('/commodity/opera/uploadUpdateCommodity', {commodityImg: videoImage, commodityVideo: file});
 
             }

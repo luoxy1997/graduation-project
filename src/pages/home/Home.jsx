@@ -18,7 +18,7 @@ import {ajaxHoc} from "../../commons/ajax";
 
 const TabPane = Tabs.TabPane;
 const {Link} = Anchor;
-export const PAGE_ROUTE = '/login';
+export const PAGE_ROUTE = '/';
 @Form.create()
 @ajaxHoc()
 @connect()
@@ -108,7 +108,7 @@ export default class Home extends Component {
             </Menu.Item>;
         return (
             <div style={{position: 'relative'}}>
-                <Header/>
+                <Header background="white"/>
                 <Row>
                     <div ref={bg => this.bg = bg} style={{height: '180px', width: '100%', opacity: '.5', background: 'rgb(96,74,194)', position: 'absolute', filter: 'blur(100px)', top: 100}}></div>
                 </Row>
@@ -124,7 +124,6 @@ export default class Home extends Component {
                 </Row>
                 <div style={{boxShadow: '0 4px 8px 0 rgba(7,17,30,.1)', paddingBottom: '60px'}}>
                     <IndexItem style={{marginTop: '20px'}} id='components-anchor-demo-basic'/>
-                    <IndexItem style={{marginTop: '60px'}}/>
                 </div>
                 <IndexQuestion/>
                 <IndexTeacher/>
